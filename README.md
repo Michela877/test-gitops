@@ -66,6 +66,8 @@ Durante l’esecuzione del comando di bootstrap, verrà richiesto di inserire il
 
 una volta creato il tutto bisognera aggiungere dentro la cartella clusters/apps e non dentro flux-system che crea in automatico questi collegamenti per apps e i microservizi o applicativi che rilascera ogni 60 secondi dentro kube con pull
 
+da creare con il nome di metadata quindi apps-1microservice.yaml
+
 ```bash
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
