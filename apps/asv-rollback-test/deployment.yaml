@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rollback-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rollback-test
+  template:
+    metadata:
+      labels:
+        app: rollback-test
+    spec:
+      containers:
+      - name: rollback-test
+        image: ghcr.io/nomeprogettononrepository/rollback-test-prod:0.0.1-main
+        ports:
+        - containerPort: 9081

@@ -85,3 +85,9 @@ spec:
 ```
 
 > 🔐 **Nota**: su name di metadata il nome deve essere apps della cartella e poi il nome della cartella dentro apps e su path su spec mettere il path
+
+
+## 4️⃣ usare pipeline per rollback
+
+la pipeline si lancia manualmente da actions e bisogna usare lo sha del commit usato e la pipeline va a prendere il commit indietro di 1 e stato progettato per il gitops per le immagini facendo test con il repositori rollback con le immagini cosi che se un immagine non funziona si puo tornare a quella precedente funzionante
+
