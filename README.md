@@ -91,3 +91,17 @@ spec:
 
 la pipeline si lancia manualmente da actions e bisogna usare lo sha del commit usato e la pipeline va a prendere il commit indietro di 1 e stato progettato per il gitops per le immagini facendo test con il repositori rollback con le immagini cosi che se un immagine non funziona si puo tornare a quella precedente funzionante
 
+## 4️⃣ usare pipeline a livello repository
+impostare sui vari repository che si collegano a questo test-gitops la variabile GITOPS_TOKEN A LIVELLO DI REPOSITORY E POI SEMPRE A LIVELLO DI REPOSITORY QUESTO SOTTO
+
+✅ 1. Workflow permissions nel repo
+Vai su:
+Settings → Actions → General → Workflow permissions
+
+Nel repo che NON funziona, probabilmente è impostato su:
+
+Read-only permissions (default)
+Devi cambiarlo in:
+Read and write permissions
+
+Questo è il motivo principale per cui il GITHUB_TOKEN non riesce a fare git push.
