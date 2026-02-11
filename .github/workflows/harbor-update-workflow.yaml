@@ -1,0 +1,59 @@
+name: Aggiorna manifest da Harbor
+
+on:
+  repository_dispatch:
+    types: [harbor_push]
+
+jobs:
+  update_manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # necessario per fare push
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Imposta variabili
+        id: vars
+        run: |
+          # Valori dal payload o fallback
+          IMG="${{ github.event.client_payload.image }}"
+          TAG="${{ github.event.client_payload.tag }}"
+          PATH_YAML="${{ github.event.client_payload.path }}"
+          if [ -z "$IMG" ]; then IMG="library/flask-hello"; fi
+          if [ -z "$TAG" ]; then TAG="1.0v"; fi
+          if [ -z "$PATH_YAML" ]; then PATH_YAML="test-gitops/apps/rollback-test/deployment.yaml"; fi
+          echo "img=$IMG" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "path=$PATH_YAML" >> $GITHUB_OUTPUT
+
+      - name: Verifica file esistente
+        run: |
+          test -f "${{ steps.vars.outputs.path }}" || (echo "File non trovato: ${{ steps.vars.outputs.path }}" && exit 1)
+
+      - name: Aggiorna l'immagine nel manifest
+        run: |
+          IMG="${{ steps.vars.outputs.img }}"
+          TAG="${{ steps.vars.outputs.tag }}"
+          PATH_YAML="${{ steps.vars.outputs.path }}"
+
+          echo "Imposto image a: ${IMG}:${TAG} in ${PATH_YAML}"
+
+          # Sostituisce la riga 'image:' esistente nel container principale
+          # Mantiene indentazione e commenti su altre righe intatte
+          sed -i 's#^\(\s*image:\s*\).*#\1'"${IMG}:${TAG}"'#' "${PATH_YAML}"
+
+          echo "Anteprima diff:"
+          git --no-pager diff -- "${PATH_YAML}" || true
+
+      - name: Configura git e fai commit/push
+        run: |
+          git config user.email "github-actions@users.noreply.github.com"
+          git config user.name "github-actions"
+          git add "${{ steps.vars.outputs.path }}"
+          if git diff --cached --quiet; then
+            echo "Nessuna modifica da committare."
+            exit 0
+          fi
+          git commit -m "chore: update image to ${{ steps.vars.outputs.img }}:${{ steps.vars.outputs.tag }}"
+          git push
